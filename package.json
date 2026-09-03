@@ -1,13 +1,16 @@
 {
   "name": "dsh-plugin-task-runner",
-  "version": "0.1.0",
-  "description": "Task Runner 任务拆解模式：主代理把大任务拆成独立子任务、派给子代理（默认本地模型）并行执行再综合结果；并发数与 worker/fallback 模型可在 config.json 按机器自定义。安装时自动把 agent preset 装进 ~/.dsh/.agent-presets/。",
+  "version": "0.2.0",
+  "description": "Task Runner 任务拆解模式：主代理把大任务拆成独立子任务、派给子代理（默认本地模型）并行执行再综合结果；并发数与 worker/fallback/orchestrator 模型可在设置面板图形化配置。安装时自动把 agent preset 装进 ~/.dsh/.agent-presets/。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -21,6 +24,13 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "slots",
+        "connection"
+      ],
+      "platform": "web"
     }
   },
   "keywords": [

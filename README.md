@@ -82,3 +82,20 @@ dsh-plugin-task-runner/
 ## License
 
 MIT
+
+---
+
+## v0.2.0：图形化设置界面
+
+安装/更新后，在 Web 界面的 **设置 → 任务拆解模式** 页面可以可视化配置：
+
+- **同时运行的子代理数**（并发上限，1–8）
+- **全本地模式开关**：勾选后主代理（拆解器）也使用 worker 模型
+- **worker / fallback / orchestrator 的 provider + model**
+- **worker 上下文预算**（tokens）
+
+保存即写入 `~/.dsh/.agent-presets/task-runner/config.json`，下一个任务拆解模式会话生效（无需重启、无需改 JSON）。
+
+> 全本地模式提示：勾选后仍需把「该会话的模型」在模型选择器里手动切到本地模型，拆解器才会真的跑在本地（persona 会自动检测并进入全本地纪律）。
+
+配置也可继续直接编辑 `config.json`（或项目根目录放 `task-runner.config.json` 做项目级覆盖），优先级：项目覆盖 > 本机 config.json。
