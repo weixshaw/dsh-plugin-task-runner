@@ -1,0 +1,43 @@
+{
+  "name": "dsh-plugin-task-runner",
+  "version": "0.1.0",
+  "description": "Task Runner 任务拆解模式：主代理把大任务拆成独立子任务、派给子代理（默认本地模型）并行执行再综合结果；并发数与 worker/fallback 模型可在 config.json 按机器自定义。安装时自动把 agent preset 装进 ~/.dsh/.agent-presets/。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "presets",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "agent-preset",
+    "subagent",
+    "task-runner",
+    "任务拆解"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weixshaw/dsh-plugin-task-runner.git"
+  },
+  "homepage": "https://github.com/weixshaw/dsh-plugin-task-runner#readme",
+  "bugs": {
+    "url": "https://github.com/weixshaw/dsh-plugin-task-runner/issues"
+  }
+}

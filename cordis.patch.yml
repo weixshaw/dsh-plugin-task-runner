@@ -1,0 +1,9 @@
+# dsh-plugin-task-runner bundle patch.
+#
+# Inserts the bootstrap row that, on host start, copies the bundled agent
+# preset (presets/task-runner) into <dshHome>/.agent-presets/task-runner.
+# Idempotent: an existing preset directory is left untouched so user edits
+# are never overwritten.
+- insert:
+    - id: task-runner-bootstrap
+      name: dsh-plugin-task-runner

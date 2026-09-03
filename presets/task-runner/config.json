@@ -1,0 +1,12 @@
+{
+  "maxConcurrentWorkers": 1,
+  "worker": {
+    "provider": "omlx",
+    "model": "root4k/Huihui-Qwen3.8-27B-abliterated-oQ4e-mtp"
+  },
+  "fallback": {
+    "provider": "deepseek-official",
+    "model": "deepseek-v4-flash"
+  },
+  "maxWorkerContextTokens": 40000
+}
