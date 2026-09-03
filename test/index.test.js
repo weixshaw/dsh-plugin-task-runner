@@ -68,3 +68,16 @@ test('apply registers the /task-runner bridge with loopback authority', async ()
   assert.equal(mutate.config.maxConcurrentWorkers, 4);
   await assert.rejects(() => handler('bogus', {}), /unknown endpoint/);
 });
+
+test('orchestrator defaults to empty (follow session) when not supplied', () => {
+  const out = mod.sanitizeConfig({ worker: { provider: 'omlx', model: 'm' } });
+  assert.equal(out.orchestrator.provider, '');
+  assert.equal(out.orchestrator.model, '');
+});
+
+test('maxWorkerContextTokens is bounded (>=1000)', () => {
+  const out = mod.sanitizeConfig({ maxWorkerContextTokens: 500 });
+  assert.equal(out.maxWorkerContextTokens, 40000); // below floor -> default
+  const ok = mod.sanitizeConfig({ maxWorkerContextTokens: 12000 });
+  assert.equal(ok.maxWorkerContextTokens, 12000);
+});
