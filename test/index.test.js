@@ -81,3 +81,15 @@ test('maxWorkerContextTokens is bounded (>=1000)', () => {
   const ok = mod.sanitizeConfig({ maxWorkerContextTokens: 12000 });
   assert.equal(ok.maxWorkerContextTokens, 12000);
 });
+
+test('maxReplanRounds bounds (0-5)', () => {
+  assert.equal(mod.sanitizeConfig({ maxReplanRounds: 9 }).maxReplanRounds, 2); // over -> default
+  assert.equal(mod.sanitizeConfig({ maxReplanRounds: 0 }).maxReplanRounds, 0); // 0 allowed
+  assert.equal(mod.sanitizeConfig({ maxReplanRounds: 3 }).maxReplanRounds, 3);
+});
+
+test('workerTimeoutMinutes bounds (5-240)', () => {
+  assert.equal(mod.sanitizeConfig({ workerTimeoutMinutes: 1 }).workerTimeoutMinutes, 30); // under -> default
+  assert.equal(mod.sanitizeConfig({ workerTimeoutMinutes: 300 }).workerTimeoutMinutes, 30); // over -> default
+  assert.equal(mod.sanitizeConfig({ workerTimeoutMinutes: 45 }).workerTimeoutMinutes, 45);
+});

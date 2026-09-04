@@ -42,3 +42,18 @@ All notable changes to dsh-plugin-task-runner.
   context budget), with per-project `task-runner.config.json` override.
 - Bootstrap host plugin that idempotently installs the preset into
   `~/.dsh/.agent-presets/task-runner` (never overwrites user edits).
+
+## [0.3.0] — 2026-09-03
+
+### Added
+- **验收 + Replan 循环**（Planner → Worker → Reviewer → Replan）：每次收到 worker
+  结果先过三问（信息够不够 / 有无报错 / 是否冲突），不过就返工——缺信息补拆、
+  有错 repair（可走 fallback）、冲突派 reviewer 子任务交叉核对。
+- **派活纪律**：子任务一旦派给 worker，主代理绝不自己执行（即使本地模型很慢）；
+  等待只做计划与整理，超时走 Replan，不自己上手。
+- 新配置：`maxReplanRounds`（返工上限，默认 2）、`workerTimeoutMinutes`（超时阈值，
+  默认 30），设置面板同步新增两个字段。
+
+### Fixed
+- README 依赖声明修正：没有 dsh-plugin-subagent-director 时内置 `subagent` 无法
+  路由到本地模型（无 provider/model 参数），本地路由会丢失。

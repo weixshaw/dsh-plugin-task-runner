@@ -12,5 +12,7 @@
     "provider": "deepseek-official",
     "model": "deepseek-v4-flash"
   },
-  "maxWorkerContextTokens": 40000
+  "maxWorkerContextTokens": 40000,
+  "maxReplanRounds": 2,
+  "workerTimeoutMinutes": 30
 }

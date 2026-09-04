@@ -42,7 +42,9 @@ preset 目录下 `config.json`（或项目根目录放一份 `task-runner.config
     "provider": "deepseek-official",
     "model": "deepseek-v4-flash"
   },
-  "maxWorkerContextTokens": 40000
+  "maxWorkerContextTokens": 40000,
+  "maxReplanRounds": 2,
+  "workerTimeoutMinutes": 30
 }
 ```
 
@@ -52,12 +54,14 @@ preset 目录下 `config.json`（或项目根目录放一份 `task-runner.config
 | `worker.provider` / `worker.model` | 默认 worker 模型（本地优先） | 换成你本机可用的任意 pi-ai 路由 |
 | `fallback.provider` / `fallback.model` | 子任务超出本地能力时改用的云端模型 | 建议留强模型兜底 |
 | `maxWorkerContextTokens` | 本地 worker 上下文预算 | 本地模型 contextWindow 的 ~60–80% |
+| `maxReplanRounds` | 每个子任务返工上限（验收不过→补拆/修复/复核） | 默认 2；0 = 一次通过就综合 |
+| `workerTimeoutMinutes` | worker 超时阈值 | 默认 30；超时走 Replan，绝不自己上手 |
 
 会话开始时主代理会读取配置并汇报生效值（并发数 / worker / fallback），方便确认当前机器跑的是什么参数。
 
 ## 依赖
 
-- DeepSeek Harness（`subagent_role` 工具来自 [dsh-plugin-subagent-director](https://github.com/SeverusZh/dsh-plugin-subagent-director)，建议一并安装；没有它本模式退化为用内置 `subagent`，路由遵循调用参数仍可用）。
+- DeepSeek Harness。**worker 按模型路由依赖 [dsh-plugin-subagent-director](https://github.com/SeverusZh/dsh-plugin-subagent-director)** 提供的 `subagent_role` 工具（它支持每次委派显式传 `provider/model`）。⚠️ 没有它时**无法**把 worker 路由到本地模型：内置 `subagent` 工具没有 provider/model 参数，退化后 worker 只会继承主会话路由（云端），本地路由丢失。此时要么装 director，要么改用 `workflow` 的 `agent(provider/model)` 显式指定本地模型。
 - 本地模型走 OpenAI 兼容端点（如 omlx `http://127.0.0.1:8000/v1`），在 `settings.yaml` 的 `llm-pi-ai.providers` 里配置 provider。
 
 ## 开发
