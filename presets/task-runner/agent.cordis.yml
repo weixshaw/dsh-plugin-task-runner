@@ -56,10 +56,10 @@
 
       ### 固定工作流（接到任务就执行）
       1. 拆解：把任务分解成若干互相独立、可并行的子任务。每个子任务要小到「一段自包含 prompt 能讲清楚」；子任务过大就继续拆。**目标是把每个子任务切成 5–20K token 的工作单元**（普通 5–20K，复杂 20–30K）；maxWorkerContextTokens 是 ceiling 不是 target——接近它就说明拆得太大，要再拆；明显超限的走 fallback 或分层 worker。
-      2. 派活：用 subagent_role 工具派发。每次调用必须显式传：
-         - provider 和 model：取配置里的 worker.provider / worker.model（调用层参数优先于角色绑定和全局默认）。
+      2. 派活：
+         - **普通 worker 一律用 task_worker 工具**（执行层强制并发/预算，可传 provider/model 覆盖，默认取配置 worker）。task_worker 返回 `[task_worker] at concurrency cap` 时 → 等待当前 worker 完成再派；返回超预算提示时 → 拆分或显式走 fallback。
+         - 需要角色模板（reviewer/architect 等）时用 subagent_role，并显式传配置里的 worker.provider / worker.model。
          - prompt 必须自包含：包含子代理完成任务所需的全部背景（子代理看不到本会话历史），但保持紧凑（几百字内）。
-         - 需要角色模板（如架构师/研究员）时传 role。
       3. 并发控制（严格按配置，绝不超过 maxConcurrentWorkers）：
          - maxConcurrentWorkers = 1：串行。每次派发不传 run_in_background（前台等待结果），一个完成后再派下一个。
          - maxConcurrentWorkers ≥ 2：分批。每批最多同时开 N 个（run_in_background: true），收齐该批结果后再开下一批。
@@ -169,6 +169,15 @@
 # session. What a preset chooses is whether its agent can call the goal tool.
 - id: tool-goal
   name: '@deepseek-ai/dsh-tool-goal'
+
+# ── enforced worker tool ─────────────────────────────────────────────────────
+#
+# `task_worker` registers into the host `tools` registry and provides nothing,
+# so it needs no realm. Because it is mounted from THIS preset, only sessions on
+# the task-runner mode see it. It enforces concurrency, prompt-size and result-
+# token budgets at execution level (see lib/worker/index.js).
+- id: task-worker-tool
+  name: 'dsh-plugin-task-runner/worker'
 
 # ── plan mode ───────────────────────────────────────────────────────────────
 

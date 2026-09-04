@@ -142,3 +142,16 @@ v0.5.0 起 orchestrator 会把长期状态结构化落盘到工作区 `.task-run
 会话开始可恢复延续任务；上下文变重时先落盘、再只留紧凑摘要。这就是把
 「Agent 边界当 Context 边界」的第三层：L1 orchestrator 工作记忆 →
 L2 worker 短上下文 → **L3 结构化文件系统 = 外部记忆**。
+
+## 执行层强制（task_worker，v0.6.0）
+
+任务拆解模式会话里多了一个 **`task_worker`** 工具（普通 worker 用它派发），把三条
+预算从「prompt 纪律」升级为「执行层事实」：
+
+| 预算 | 执行层行为 |
+|---|---|
+| 并发上限 | 真信号量：超限返回 `busy`，等待当前 worker 完成再派 |
+| worker 上下文 | 派发前 token 估算，超 `maxWorkerContextTokens` 拒绝并提示拆分/走 fallback |
+| worker 结果 | 超 `maxWorkerResultTokens` 保头截断，全文自动落盘 `.task-runner/artifacts/` |
+
+reviewer/architect 等角色任务仍用 `subagent_role`（需要角色 persona 时）。

@@ -82,3 +82,20 @@ All notable changes to dsh-plugin-task-runner.
   供下次接力。模型只负责当前推理，「记忆」交给结构化文件。
 - **worker 上下文目标值**：maxWorkerContextTokens 明确为 ceiling 不是 target——普通
   worker 拆成 5–20K、复杂 20–30K 的工作单元，接近 40K 说明拆太大要再拆。
+
+## [0.6.0] — 2026-09-03
+
+### Added
+- **`task_worker` 执行层强制工具**（仅任务拆解模式会话可见，通过 preset 挂载）：
+  - **并发信号量**：超过 `maxConcurrentWorkers` 直接拒绝（`busy`），不再靠模型自觉；
+  - **prompt 尺寸门禁**：派发前 token 估算，超 `maxWorkerContextTokens` 拒绝并提示
+    「拆分或走 fallback」（按用户选择：拒绝，不自动切模型）；
+  - **结果带宽硬截断**：worker 输出超 `maxWorkerResultTokens` 时 host 层保头截断，
+    全文自动落盘 `.task-runner/artifacts/worker-<id>.txt` 并返回路径（截断不丢信息）。
+- persona 派活改为：普通 worker 一律走 `task_worker`；reviewer/architect 等角色任务
+  仍走 `subagent_role`；`busy`/超预算返回有明确的处置指令。
+- 纯函数测试覆盖估算/截断/信号量（共 16 项，全过）。
+
+### Verified
+- 子代理契约核对：`ctx.subagents.start` + `settleRun`（result + dispose 双 allSettled）
+  与 director 同源，`exec.agent`/`exec.signal`/`agentOptions` 用法一致。
