@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-task-runner",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Task Runner 任务拆解模式：主代理把大任务拆成独立子任务、派给子代理（默认本地模型）并行执行再综合结果；并发数与 worker/fallback/orchestrator 模型可在设置面板图形化配置。安装时自动把 agent preset 装进 ~/.dsh/.agent-presets/。",
   "type": "module",
   "main": "lib/index.js",

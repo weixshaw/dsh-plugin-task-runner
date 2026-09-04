@@ -125,3 +125,20 @@ prompt + 系统注入），父会话历史不传递。配合两条防线：
 
 orchestrator 侧自动压缩（`compaction-basic`）同样由 composition 提供，长任务下
 主代理上下文不会线性膨胀。
+
+## 外部记忆（.task-runner/）
+
+v0.5.0 起 orchestrator 会把长期状态结构化落盘到工作区 `.task-runner/`：
+
+```
+.task-runner/
+  state.json    # 当前阶段 / 目标 / 待办 / 已做决策（紧凑）
+  tasks.json    # 任务清单（id、状态、worker、小结路径）
+  findings/     # 一主题一文件的关键发现
+  artifacts/    # worker 完整输出与长内容
+  summary.md    # 任务结束时留下的交接摘要
+```
+
+会话开始可恢复延续任务；上下文变重时先落盘、再只留紧凑摘要。这就是把
+「Agent 边界当 Context 边界」的第三层：L1 orchestrator 工作记忆 →
+L2 worker 短上下文 → **L3 结构化文件系统 = 外部记忆**。

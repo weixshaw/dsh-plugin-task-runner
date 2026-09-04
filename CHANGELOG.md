@@ -72,3 +72,13 @@ All notable changes to dsh-plugin-task-runner.
   确认子代理是全新会话、无历史透传。
 - orchestrator 自动压缩确认在组合中就位：`compaction-basic` +
   `tool-result-pruner`（阈值 8192 字符）对工具结果（含子代理结果）做硬截断。
+
+## [0.5.0] — 2026-09-03
+
+### Added
+- **状态落盘（外部记忆）**：`.task-runner/` 工作区目录成为长期记忆层——`state.json`
+  / `tasks.json` / `findings/` / `artifacts/`。会话开始可恢复延续任务；worker 验收后、
+  Replan、里程碑时写回状态；上下文变重时先落盘再只留紧凑摘要；结束时留 summary.md
+  供下次接力。模型只负责当前推理，「记忆」交给结构化文件。
+- **worker 上下文目标值**：maxWorkerContextTokens 明确为 ceiling 不是 target——普通
+  worker 拆成 5–20K、复杂 20–30K 的工作单元，接近 40K 说明拆太大要再拆。
