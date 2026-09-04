@@ -57,3 +57,18 @@ All notable changes to dsh-plugin-task-runner.
 ### Fixed
 - README 依赖声明修正：没有 dsh-plugin-subagent-director 时内置 `subagent` 无法
   路由到本地模型（无 provider/model 参数），本地路由会丢失。
+
+## [0.4.0] — 2026-09-03
+
+### Added
+- **Worker 小结带宽预算 `maxWorkerResultTokens`**（默认 2000）：每个 worker 返回给
+  主代理的小结 token 上限，超出部分必须落盘（小结只留路径+要点）。这是主代理
+  上下文不随 worker 数量线性膨胀的关键防线（N×2K 封顶，而非 N×8K）。
+- 设置面板新增对应字段；sanitize 边界 200–50000。
+
+### Verified
+- 上下文隔离实测通过：在父会话上下文放置 `THE_SECRET_CODE_IS_739251` 后派
+  spawn worker，worker 完全无法感知该密钥（只看到自己的 prompt 与系统注入），
+  确认子代理是全新会话、无历史透传。
+- orchestrator 自动压缩确认在组合中就位：`compaction-basic` +
+  `tool-result-pruner`（阈值 8192 字符）对工具结果（含子代理结果）做硬截断。

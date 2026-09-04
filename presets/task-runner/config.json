@@ -14,5 +14,6 @@
   },
   "maxWorkerContextTokens": 40000,
   "maxReplanRounds": 2,
-  "workerTimeoutMinutes": 30
+  "workerTimeoutMinutes": 30,
+  "maxWorkerResultTokens": 2000
 }

@@ -93,3 +93,9 @@ test('workerTimeoutMinutes bounds (5-240)', () => {
   assert.equal(mod.sanitizeConfig({ workerTimeoutMinutes: 300 }).workerTimeoutMinutes, 30); // over -> default
   assert.equal(mod.sanitizeConfig({ workerTimeoutMinutes: 45 }).workerTimeoutMinutes, 45);
 });
+
+test('maxWorkerResultTokens bounds (200-50000)', () => {
+  assert.equal(mod.sanitizeConfig({ maxWorkerResultTokens: 100 }).maxWorkerResultTokens, 2000); // under -> default
+  assert.equal(mod.sanitizeConfig({ maxWorkerResultTokens: 100000 }).maxWorkerResultTokens, 2000); // over -> default
+  assert.equal(mod.sanitizeConfig({ maxWorkerResultTokens: 4000 }).maxWorkerResultTokens, 4000);
+});

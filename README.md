@@ -44,7 +44,8 @@ preset 目录下 `config.json`（或项目根目录放一份 `task-runner.config
   },
   "maxWorkerContextTokens": 40000,
   "maxReplanRounds": 2,
-  "workerTimeoutMinutes": 30
+  "workerTimeoutMinutes": 30,
+  "maxWorkerResultTokens": 2000
 }
 ```
 
@@ -56,6 +57,7 @@ preset 目录下 `config.json`（或项目根目录放一份 `task-runner.config
 | `maxWorkerContextTokens` | 本地 worker 上下文预算 | 本地模型 contextWindow 的 ~60–80% |
 | `maxReplanRounds` | 每个子任务返工上限（验收不过→补拆/修复/复核） | 默认 2；0 = 一次通过就综合 |
 | `workerTimeoutMinutes` | worker 超时阈值 | 默认 30；超时走 Replan，绝不自己上手 |
+| `maxWorkerResultTokens` | **worker 小结带宽预算**：每个 worker 返回给主代理的上限 | 默认 2000，这是主上下文不随 worker 数线性膨胀的防线 |
 
 会话开始时主代理会读取配置并汇报生效值（并发数 / worker / fallback），方便确认当前机器跑的是什么参数。
 
@@ -110,3 +112,16 @@ MIT
 - **改了并发但没生效**：配置在**下一个任务拆解模式会话**开始时读取，当前会话不受影响；也可以直接在 `~/.dsh/.agent-presets/task-runner/config.json` 改。
 - **本地 worker 又内存溢出了**：把「同时运行的子代理数」降到 1（严格串行），或在项目根目录放 `task-runner.config.json` 里的 `maxConcurrentWorkers: 1`。
 - **全本地模式没生效**：除了勾选开关，还要把**该会话的模型**在模型选择器里手动切到本地模型——persona 检测到后才会进入全本地纪律。
+
+## 上下文隔离：已实测验证
+
+v0.4.0 起附带实测结论：在父会话上下文放置密钥 `THE_SECRET_CODE_IS_739251` 后
+派 spawn worker，worker 完全无法感知该密钥——子代理是**全新会话**（只有自己的
+prompt + 系统注入），父会话历史不传递。配合两条防线：
+
+- **语义预算** `maxWorkerResultTokens`：worker 小结 ≤2K token，超限落盘只回路径；
+- **硬截断** `tool-result-pruner`（composition 自带，阈值 8192 字符）：无论 worker
+  返回多长，主代理实际收到的工具结果都会被 head/tail 截断。
+
+orchestrator 侧自动压缩（`compaction-basic`）同样由 composition 提供，长任务下
+主代理上下文不会线性膨胀。
